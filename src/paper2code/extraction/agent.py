@@ -12,5 +12,5 @@ class ExtractionAgent:
         self._provider = provider
 
     def run(self, document_text: str) -> list[PaperArtifact]:
-        """Run artifact extraction for publication text."""
+        """Run extraction for text blobs or file-path based inputs."""
         return self._provider.extract(document_text)

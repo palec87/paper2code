@@ -7,6 +7,8 @@ from paper2code.pipeline import PipelineResult
 from paper2code.providers import MockExplanationProvider
 from paper2code.providers import MockExtractionProvider
 from paper2code.providers import MockPlanningProvider
+from paper2code.reporting import AgreementReportGenerator
+from paper2code.reporting import TraceabilityInput
 
 
 def hello() -> str:
@@ -18,8 +20,10 @@ __all__ = [
     "MockExplanationProvider",
     "MockExtractionProvider",
     "MockPlanningProvider",
+    "AgreementReportGenerator",
     "PaperToCodePipeline",
     "PipelineResult",
+    "TraceabilityInput",
     "__version__",
     "hello",
 ]

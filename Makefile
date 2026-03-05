@@ -1,4 +1,4 @@
-.PHONY: help install dev-install test coverage lint format clean docs build
+.PHONY: help install dev-install test coverage lint format clean docs build extract-test agreement-test db-migrate
 
 help:  ## Show this help message
 	@echo 'Usage: make [target]'
@@ -43,5 +43,14 @@ docs:  ## Build documentation
 
 build:  ## Build the package
 	uv build
+
+extract-test:  ## Run extraction-specific tests
+	uv run pytest tests/test_extraction.py
+
+agreement-test:  ## Run agreement report tests
+	uv run pytest tests/test_reporting_agreement.py
+
+db-migrate:  ## Show first migration file path
+	@echo "Apply src/paper2code/registry/migrations/versions/0001_initial_tool_registry.sql"
 
 .DEFAULT_GOAL := help

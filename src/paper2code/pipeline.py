@@ -3,10 +3,14 @@
 from dataclasses import dataclass
 
 from paper2code.extraction import ExtractionAgent
+from paper2code.models import AgreementReport
+from paper2code.models import IntermediateOutput
 from paper2code.models import PaperArtifact
 from paper2code.models import WorkflowStep
 from paper2code.planning import PlanningAgent
 from paper2code.reduction import ReductionStrategy
+from paper2code.reporting import AgreementReportGenerator
+from paper2code.reporting import TraceabilityInput
 
 
 @dataclass(slots=True)
@@ -16,6 +20,8 @@ class PipelineResult:
     artifacts: list[PaperArtifact]
     reduced_artifacts: list[PaperArtifact]
     workflow_steps: list[WorkflowStep]
+    intermediate_outputs: list[IntermediateOutput]
+    agreement_report: AgreementReport | None = None
 
 
 class PaperToCodePipeline:
@@ -43,9 +49,52 @@ class PaperToCodePipeline:
             artifacts,
             max_items=max_examples,
         )
-        steps = self._planning_agent.run(reduced)
+        steps, outputs = self._planning_agent.run_with_outputs(reduced)
         return PipelineResult(
             artifacts=artifacts,
             reduced_artifacts=reduced,
             workflow_steps=steps,
+            intermediate_outputs=outputs,
         )
+
+    def run_with_agreement(
+        self,
+        document_text: str,
+        run_id: str,
+        paper_id: str,
+        expected_value: float,
+        observed_value: float,
+        tolerance: float,
+        traceability_rows: list[TraceabilityInput],
+        max_examples: int = 20,
+    ) -> PipelineResult:
+        """Run pipeline and attach an agreement report."""
+        result = self.run(
+            document_text=document_text,
+            max_examples=max_examples,
+        )
+        reporter = AgreementReportGenerator()
+        checks = [
+            reporter.numerical_tolerance_check(
+                check_id="numeric-1",
+                metric_name="primary_metric",
+                expected=expected_value,
+                observed=observed_value,
+                tolerance=tolerance,
+            ),
+            reporter.workflow_completeness_check(
+                check_id="workflow-1",
+                steps=result.workflow_steps,
+                outputs=result.intermediate_outputs,
+            ),
+        ]
+        trace_checks, mapping = reporter.traceability_checks(traceability_rows)
+        checks.extend(trace_checks)
+        report = reporter.generate_report(
+            run_id=run_id,
+            paper_id=paper_id,
+            checks=checks,
+            traceability_map=mapping,
+        )
+        result.agreement_report = report
+        return result

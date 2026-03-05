@@ -2,6 +2,7 @@
 
 from typing import Protocol
 
+from paper2code.models import IntermediateOutput
 from paper2code.models import PaperArtifact
 from paper2code.models import WorkflowStep
 
@@ -18,6 +19,12 @@ class PlanningLLM(Protocol):
 
     def plan(self, artifacts: list[PaperArtifact]) -> list[WorkflowStep]:
         """Plan workflow steps from extracted artifacts."""
+
+    def plan_with_outputs(
+        self,
+        artifacts: list[PaperArtifact],
+    ) -> tuple[list[WorkflowStep], list[IntermediateOutput]]:
+        """Plan workflow steps and expose intermediate outputs."""
 
 
 class ExplanationLLM(Protocol):

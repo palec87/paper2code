@@ -3,8 +3,10 @@
 from paper2code.interfaces import ExplanationLLM
 from paper2code.interfaces import ExtractionLLM
 from paper2code.interfaces import PlanningLLM
+from paper2code.models import IntermediateOutput
 from paper2code.models import PaperArtifact
 from paper2code.models import WorkflowStep
+from paper2code.models import WorkflowUncertainty
 
 
 class MockExtractionProvider(ExtractionLLM):
@@ -36,8 +38,28 @@ class MockPlanningProvider(PlanningLLM):
                 description="Run baseline reproducible analysis.",
                 tools=("python", "docker"),
                 expected_outputs=("metrics.json", "report.md"),
+                uncertainty_level=WorkflowUncertainty.LOW,
+                confidence_score=0.9,
             )
         ]
+
+    def plan_with_outputs(
+        self,
+        artifacts: list[PaperArtifact],
+    ) -> tuple[list[WorkflowStep], list[IntermediateOutput]]:
+        """Plan workflow steps and return reasoning outputs."""
+        steps = self.plan(artifacts)
+        outputs = [
+            IntermediateOutput(
+                output_id="step-1-rationale",
+                step_id="step-1",
+                name="rationale",
+                location="Selected baseline reproducible analysis.",
+            )
+        ]
+        if not steps:
+            return [], []
+        return steps, outputs
 
 
 class MockExplanationProvider(ExplanationLLM):

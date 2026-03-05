@@ -1,6 +1,15 @@
 """Typed data models used across the paper2code workflow."""
 
 from dataclasses import dataclass, field
+from enum import StrEnum
+
+
+class WorkflowUncertainty(StrEnum):
+    """Structured uncertainty levels for planned workflow steps."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
 
 
 @dataclass(slots=True, frozen=True)
@@ -12,6 +21,8 @@ class PaperArtifact:
     source_path: str
     content: str
     confidence: float = 1.0
+    source_format: str = "text"
+    extraction_method: str = "direct"
 
 
 @dataclass(slots=True, frozen=True)
@@ -22,6 +33,8 @@ class WorkflowStep:
     description: str
     tools: tuple[str, ...]
     expected_outputs: tuple[str, ...]
+    uncertainty_level: WorkflowUncertainty = WorkflowUncertainty.LOW
+    confidence_score: float = 1.0
     uncertainty_note: str | None = None
 
 
@@ -45,6 +58,18 @@ class AgreementCheck:
     observed: str
     passed: bool
     details: str = ""
+
+
+@dataclass(slots=True, frozen=True)
+class AgreementReport:
+    """Aggregated agreement checks produced for one pipeline run."""
+
+    report_id: str
+    run_id: str
+    paper_id: str
+    checks: tuple[AgreementCheck, ...]
+    summary: str
+    traceability_map: dict[str, tuple[str, ...]]
 
 
 @dataclass(slots=True, frozen=True)

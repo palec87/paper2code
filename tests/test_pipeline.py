@@ -24,4 +24,5 @@ def test_pipeline_run_produces_artifacts_and_steps() -> None:
     assert len(result.artifacts) == 1
     assert len(result.reduced_artifacts) == 1
     assert len(result.workflow_steps) == 1
+    assert len(result.intermediate_outputs) == 1
     assert result.workflow_steps[0].step_id == "step-1"
