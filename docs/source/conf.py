@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'package_name'
+project = 'paper2code'
 copyright = '2026, palec87'
 author = 'palec87'
 release = '0.1.0'

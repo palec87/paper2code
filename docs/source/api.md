@@ -1,7 +1,7 @@
 # API Reference
 
 ```{eval-rst}
-.. automodule:: package_name
+.. automodule:: paper2code
    :members:
    :undoc-members:
    :show-inheritance:

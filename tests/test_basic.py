@@ -1,15 +1,15 @@
-"""Basic tests for package_name package."""
+"""Basic tests for paper2code package."""
 
-import src
+import src.paper2code as paper2code
 
 
 def test_hello() -> None:
     """Test the hello function."""
-    result = src.hello()
+    result = paper2code.hello()
     assert isinstance(result, str)
-    assert "Hello from package_name!" == result
+    assert "Hello from paper2code!" == result
 
 
 def test_package_has_version() -> None:
     """Test that the package has a version attribute."""
-    assert hasattr(src, "__version__")
+    assert hasattr(paper2code, "__version__")

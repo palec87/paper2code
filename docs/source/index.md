@@ -1,6 +1,6 @@
-# package_name Documentation
+# paper2code Documentation
 
-Welcome to the documentation for package_name.
+Welcome to the documentation for paper2code.
 
 ## Overview
 
@@ -13,6 +13,8 @@ Support methods and classes for ....
 :caption: Contents:
 
 installation
+roadmap
+architecture
 api
 ```
 

@@ -1,4 +1,4 @@
-# [Package name]
+# paper2code
 
 :: short description::
 
@@ -7,20 +7,20 @@
 ### Using uv (recommended)
 
 ```bash
-uv add package_name
+uv add paper2code
 ```
 
 ### Using pip
 
 ```bash
-pip install package_name
+pip install paper2code
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/palec87/package_name.git
-cd package_name
+git clone https://github.com/palec87/paper2code.git
+cd paper2code
 uv sync
 ```
 
