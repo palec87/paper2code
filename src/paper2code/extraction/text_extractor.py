@@ -2,10 +2,14 @@
 
 import re
 
+from paper2code.logging import get_logger
 from paper2code.models import PaperArtifact
 
 
 _SECTION_RE = re.compile(r"^(#+\s+)?([A-Za-z][A-Za-z\s]{2,40}):?$")
+
+
+logger = get_logger(__name__)
 
 
 class TextSectionExtractor:
@@ -14,6 +18,11 @@ class TextSectionExtractor:
     def extract(self, text: str, source_path: str) -> list[PaperArtifact]:
         """Extract section chunks and return typed artifacts."""
         lines = [line.strip() for line in text.splitlines() if line.strip()]
+        logger.debug(
+            "Extracting text sections from %s with %d non-empty lines",
+            source_path,
+            len(lines),
+        )
         artifacts: list[PaperArtifact] = []
         section_name = "full_text"
         buffer: list[str] = []
@@ -35,6 +44,11 @@ class TextSectionExtractor:
                     extraction_method="section_parser",
                 )
             )
+            logger.debug(
+                "Created text artifact for section '%s' with %d chars",
+                current_section,
+                len(chunk_text),
+            )
 
         for line in lines:
             match = _SECTION_RE.match(line)
@@ -45,4 +59,9 @@ class TextSectionExtractor:
                 continue
             buffer.append(line)
         flush(section_name, buffer)
+        logger.info(
+            "Text section extraction produced %d artifacts from %s",
+            len(artifacts),
+            source_path,
+        )
         return artifacts

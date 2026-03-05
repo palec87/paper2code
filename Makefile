@@ -1,4 +1,4 @@
-.PHONY: help install dev-install test coverage lint format clean docs build extract-test agreement-test db-migrate
+.PHONY: help install dev-install test coverage lint format clean docs build extract-test agreement-test db-migrate showcase process-assets-pdf
 
 help:  ## Show this help message
 	@echo 'Usage: make [target]'
@@ -10,7 +10,7 @@ install:  ## Install the package
 	uv sync
 
 dev-install:  ## Install the package with development dependencies
-	uv sync --extra dev --extra docs
+	 	
 
 test:  ## Run tests
 	uv run pytest tests/
@@ -52,5 +52,11 @@ agreement-test:  ## Run agreement report tests
 
 db-migrate:  ## Show first migration file path
 	@echo "Apply src/paper2code/registry/migrations/versions/0001_initial_tool_registry.sql"
+
+showcase:  ## Run package showcase script
+	uv run python scripts/showcase.py
+
+process-assets-pdf:  ## Process first PDF in assets/ via pipeline
+	uv run python scripts/process_assets_pdf.py
 
 .DEFAULT_GOAL := help

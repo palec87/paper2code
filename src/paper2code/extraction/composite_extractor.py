@@ -6,7 +6,11 @@ from paper2code.extraction.confidence_scorer import ConfidenceScorer
 from paper2code.extraction.pdf_extractor import PDFExtractor
 from paper2code.extraction.text_extractor import TextSectionExtractor
 from paper2code.interfaces import ExtractionLLM
+from paper2code.logging import get_logger
 from paper2code.models import PaperArtifact
+
+
+logger = get_logger(__name__)
 
 
 class CompositeExtractionProvider(ExtractionLLM):
@@ -23,11 +27,19 @@ class CompositeExtractionProvider(ExtractionLLM):
         path = Path(document_text)
         artifacts: list[PaperArtifact]
         if path.exists() and path.suffix.lower() == ".pdf":
+            logger.info("Composite extractor using PDF mode: %s", path)
             artifacts = self._pdf.extract(str(path))
         elif path.exists():
+            logger.info("Composite extractor using text file mode: %s", path)
             text = path.read_text(encoding="utf-8")
             artifacts = self._text.extract(text, str(path))
         else:
+            logger.info("Composite extractor using inline text mode")
             artifacts = self._text.extract(document_text, "inline_input")
 
-        return [self._scorer.score(item) for item in artifacts]
+        scored = [self._scorer.score(item) for item in artifacts]
+        logger.debug(
+            "Composite extractor produced %d artifacts",
+            len(scored),
+        )
+        return scored

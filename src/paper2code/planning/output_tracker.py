@@ -2,7 +2,11 @@
 
 from pathlib import Path
 
+from paper2code.logging import get_logger
 from paper2code.models import IntermediateOutput
+
+
+logger = get_logger(__name__)
 
 
 class IntermediateOutputTracker:
@@ -12,6 +16,7 @@ class IntermediateOutputTracker:
         """Initialize tracker root directory."""
         self._root = Path(run_dir)
         self._root.mkdir(parents=True, exist_ok=True)
+        logger.debug("Output tracker initialized at %s", self._root)
 
     def emit_output(
         self,
@@ -24,6 +29,11 @@ class IntermediateOutputTracker:
         step_dir.mkdir(parents=True, exist_ok=True)
         file_path = step_dir / f"{name}.txt"
         file_path.write_text(content, encoding="utf-8")
+        logger.debug(
+            "Persisted intermediate output %s at %s",
+            name,
+            file_path,
+        )
         output_id = f"{step_id}-{name}"
         return IntermediateOutput(
             output_id=output_id,

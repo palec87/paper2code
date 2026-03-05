@@ -3,10 +3,14 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
+from paper2code.logging import get_logger
 from paper2code.models import AgreementCheck
 from paper2code.models import AgreementReport
 from paper2code.models import IntermediateOutput
 from paper2code.models import WorkflowStep
+
+
+logger = get_logger(__name__)
 
 
 @dataclass(slots=True)
@@ -33,6 +37,17 @@ class AgreementReportGenerator:
         """Check whether observed value is within tolerance."""
         difference = abs(expected - observed)
         passed = difference <= tolerance
+        logger.debug(
+            (
+                "Numerical check %s: expected=%s observed=%s "
+                "tolerance=%s passed=%s"
+            ),
+            check_id,
+            expected,
+            observed,
+            tolerance,
+            passed,
+        )
         details = f"difference={difference:.6g}; tolerance={tolerance:.6g}"
         return AgreementCheck(
             check_id=check_id,
@@ -57,6 +72,13 @@ class AgreementReportGenerator:
         found = sum(1 for name in expected_names if name in observed_names)
         total = len(expected_names)
         passed = found == total
+        logger.debug(
+            "Workflow completeness %s: found=%d total=%d passed=%s",
+            check_id,
+            found,
+            total,
+            passed,
+        )
         details = f"found={found}/{total} expected outputs"
         return AgreementCheck(
             check_id=check_id,
@@ -89,6 +111,12 @@ class AgreementReportGenerator:
                 )
             )
             traceability_map[row.claim_id] = (row.step_id,)
+            logger.debug(
+                "Traceability claim %s mapped to step %s passed=%s",
+                row.claim_id,
+                row.step_id,
+                passed,
+            )
         return checks, traceability_map
 
     def generate_report(
@@ -101,6 +129,12 @@ class AgreementReportGenerator:
         """Aggregate checks into an immutable agreement report."""
         passed_count = sum(1 for check in checks if check.passed)
         summary = f"{passed_count}/{len(checks)} checks passed"
+        logger.info(
+            "Generating agreement report for run_id=%s paper_id=%s summary=%s",
+            run_id,
+            paper_id,
+            summary,
+        )
         return AgreementReport(
             report_id=str(uuid4()),
             run_id=run_id,

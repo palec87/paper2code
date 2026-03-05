@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from paper2code.extraction import ExtractionAgent
+from paper2code.logging import get_logger
 from paper2code.models import AgreementReport
 from paper2code.models import IntermediateOutput
 from paper2code.models import PaperArtifact
@@ -11,6 +12,9 @@ from paper2code.planning import PlanningAgent
 from paper2code.reduction import ReductionStrategy
 from paper2code.reporting import AgreementReportGenerator
 from paper2code.reporting import TraceabilityInput
+
+
+logger = get_logger(__name__)
 
 
 @dataclass(slots=True)
@@ -44,12 +48,20 @@ class PaperToCodePipeline:
         max_examples: int = 20,
     ) -> PipelineResult:
         """Run the phase-1 workflow from text to planned steps."""
+        logger.info("Pipeline run started")
         artifacts = self._extraction_agent.run(document_text)
+        logger.debug("Pipeline extracted %d artifacts", len(artifacts))
         reduced = self._reduction_strategy.reduce_to_examples(
             artifacts,
             max_items=max_examples,
         )
+        logger.debug("Pipeline reduced to %d artifacts", len(reduced))
         steps, outputs = self._planning_agent.run_with_outputs(reduced)
+        logger.info(
+            "Pipeline run completed with %d steps and %d outputs",
+            len(steps),
+            len(outputs),
+        )
         return PipelineResult(
             artifacts=artifacts,
             reduced_artifacts=reduced,
@@ -69,6 +81,7 @@ class PaperToCodePipeline:
         max_examples: int = 20,
     ) -> PipelineResult:
         """Run pipeline and attach an agreement report."""
+        logger.info("Pipeline agreement run started for paper_id=%s", paper_id)
         result = self.run(
             document_text=document_text,
             max_examples=max_examples,
@@ -97,4 +110,5 @@ class PaperToCodePipeline:
             traceability_map=mapping,
         )
         result.agreement_report = report
+        logger.info("Agreement report generated: %s", report.summary)
         return result
